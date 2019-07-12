@@ -5,7 +5,7 @@
 
 cmake_minimum_required(VERSION 3.4.1)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../bullet3-2.87/src)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../bullet3-2.88/src ${CMAKE_CURRENT_SOURCE_DIR}/../bullet3-2.88/Extras)
 
 set(BULLET_LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../bullet_android")
 # Creates and names a library, sets it as either STATIC
@@ -40,6 +40,8 @@ find_library( # Sets the name of the path variable.
               # you want CMake to locate.
               log )
 
+find_library(android-lib android)
+
 
 message(STATUS "path: ${bullet_lib}")
 
@@ -53,4 +55,5 @@ target_link_libraries( # Specifies the target library.
                        # Links the target library to the log library
                        # included in the NDK.
                        ${log-lib}
-        bullet_lib)
+		               ${android-lib}
+                       bullet_lib)
