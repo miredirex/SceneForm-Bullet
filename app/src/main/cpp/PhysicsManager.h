@@ -8,6 +8,9 @@
 
 #include "JniHelper.h"
 #include "btBulletDynamicsCommon.h"
+#include "Serialize/BulletWorldImporter/btBulletWorldImporter.h"
+#include "android/asset_manager.h"
+#include "android/asset_manager_jni.h"
 
 
 
@@ -25,6 +28,8 @@ public:
                           float mass = 5,void* attachedNode = nullptr);
     long createPhysicsSphere(float radius,Vector3& initialPosition,
                           float mass = 5,void* attachedNode = nullptr);
+    long createPhysicsBodyWithCollisionShape(Vector3& initialPosition,
+                                             float mass = 5,void* attachedNode = nullptr, const char* bulletFileName = nullptr, AAssetManager* assetManager = nullptr);
     long createPhysicsBoxFromEye(Vector3& size,Vector3& initialPosition,
                                  Vector3& lookAt,float mass = 5,
                                  float force =250,void* attachedNode = nullptr);

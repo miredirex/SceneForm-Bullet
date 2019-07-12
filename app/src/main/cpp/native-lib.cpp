@@ -130,6 +130,29 @@ Java_com_mahmoudgalal_sceneformbulletphysics_PhysicsManager_createPhysicsSphere(
 }
 
 extern "C" JNIEXPORT jlong JNICALL
+Java_com_mahmoudgalal_sceneformbulletphysics_PhysicsManager_createPhysicsBodyWithCollisionShape(
+        JNIEnv* env,
+        jobject /* this */,
+        jobject initialPosition ,
+        jfloat mass,
+        jobject attachedNode,
+        jstring bulletFileName,
+        jobject assetManager) {
+    if (physicsManager) {
+        JniHelper jniHelper;
+        Vector3 positionV = jniHelper.convertToNativeVector(initialPosition);
+        jobject  attachedNodeG = e_ctx.env->NewGlobalRef(attachedNode);
+        AAssetManager *assetMgr = AAssetManager_fromJava(env, assetManager);
+
+        const char *bulletFileNameString = env->GetStringUTFChars(bulletFileName, nullptr);
+        env->ReleaseStringUTFChars(bulletFileName, bulletFileNameString);
+
+        return physicsManager->createPhysicsBodyWithCollisionShape(positionV, mass, (void*)attachedNodeG, bulletFileNameString, assetMgr);
+    }
+    return INT64_MIN;
+}
+
+extern "C" JNIEXPORT jlong JNICALL
 Java_com_mahmoudgalal_sceneformbulletphysics_PhysicsManager_createPhysicsBoxFromEye(
         JNIEnv* env,
         jobject /* this */,

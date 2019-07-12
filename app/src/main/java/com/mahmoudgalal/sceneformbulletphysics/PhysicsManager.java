@@ -4,6 +4,7 @@
 ////////////////////////////////////////////////
 package com.mahmoudgalal.sceneformbulletphysics;
 
+import android.content.res.AssetManager;
 import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.NodeParent;
 import com.google.ar.sceneform.math.Vector3;
@@ -62,6 +63,20 @@ public class PhysicsManager {
      */
     public native long createPhysicsSphere(float radius, Vector3 initialPosition, float mass,
                                         Node attachedNode);
+
+    /**
+     *  Creates a physics body with custom collision shape
+     *  Exporting .bullet from blender: xissburg.com/post/export-bullet-from-blender/
+     *
+     * @param initialPosition  initial world position
+     * @param mass shape mass.if > 0, created shape will be dynamic otherwise will be static
+     * @param attachedNode attached renderable node
+     * @param bulletFileName collision shape .bullet file in assets directory
+     * @param assetManager asset manager ( [your application context].getApplication().getAssets() )
+     * @return unique id (native pointer) of the created physics body
+     */
+    public native long createPhysicsBodyWithCollisionShape(Vector3 initialPosition, float mass,
+                                                           Node attachedNode, String bulletFileName, AssetManager assetManager);
 
     /**
      * Creates and throws a box physics shape from the camera eye position

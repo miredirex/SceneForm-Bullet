@@ -163,6 +163,64 @@ long PhysicsManager::createPhysicsSphere(float radius, Vector3 &initialPosition,
     return reinterpret_cast<long>(body);
 }
 
+long PhysicsManager::createPhysicsBodyWithCollisionShape(Vector3 &initialPosition, float mass,
+                                                         void *attachedNode, const char *bulletFileName,  AAssetManager *assetMgr) {
+
+    // read .bullet collision shape file from app/src/main/assets folder
+    AAsset* colShapeAsset = AAssetManager_open(assetMgr, bulletFileName, AASSET_MODE_BUFFER);
+    size_t assetSize = AAsset_getLength(colShapeAsset);
+
+    // allocate buffer to read file
+    char* assetBuffer = new char[assetSize+1];
+
+    AAsset_read(colShapeAsset, assetBuffer, assetSize);
+    AAsset_close(colShapeAsset);
+
+    // import collision shape
+    btBulletWorldImporter importer(0);
+    importer.loadFileFromMemory(assetBuffer, assetSize);
+    int totalShapes = importer.getNumCollisionShapes();
+    LOGI("total collision shapes: %i", totalShapes);
+    btCollisionShape* colShape;
+    if(totalShapes) {
+        colShape = importer.getCollisionShapeByIndex(0);
+    } else {
+        LOGE("- - > No collision shapes (indexed at 0) found in specified file. Collision shape set to cylinder instead.");
+        colShape = new btCylinderShape(btVector3(0.05f, 0.15f, 0.05f));
+    }
+
+    collisionShapes.push_back(colShape);
+
+    /// Create Dynamic Objects
+    btTransform startTransform;
+    startTransform.setIdentity();
+
+    //rigidbody is dynamic if and only if mass is non zero, otherwise static
+    bool isDynamic = (mass != 0.f);
+
+    btVector3 localInertia(0, 0, 0);
+    if (isDynamic)
+        colShape->calculateLocalInertia(mass, localInertia);
+
+    startTransform.setOrigin(btVector3(initialPosition.x, initialPosition.y,
+                                       initialPosition.z));
+
+    btQuaternion quat(btVector3(0, 1, 0), -1.57);
+    startTransform.setRotation(quat);
+
+    //using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+    btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
+    btRigidBody* body = new btRigidBody(rbInfo);
+    body->setUserIndex(16);
+    // body->setDamping(0.01,0.01);
+
+    body->setUserPointer(attachedNode);
+    // body->setFriction(1);
+    dynamicsWorld->addRigidBody(body);
+    return reinterpret_cast<long>(body);
+}
+
 long PhysicsManager::createPhysicsSphereFromEye(float radius, Vector3 &initialPosition,
                                                 Vector3 &lookat, float mass, float forceFactor,
                                                 void *attachedNode) {
